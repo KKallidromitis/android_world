@@ -52,7 +52,7 @@ o
     # Typically it's located in ~/Android/Sdk/emulator/emulator or
     # ~/Library/Android/sdk/emulator/emulator
     EMULATOR_NAME=AndroidWorldAvd # From previous step
-    ~/Library/Android/sdk/emulator/emulator -avd $EMULATOR_NAME -no-snapshot -grpc 8554
+    ~/Library/Android/Sdk/emulator/emulator -avd $EMULATOR_NAME -no-snapshot -grpc 8554
     ```
 
 1. [Optional] It's recommended to use `conda`, which you can download [here](https://docs.anaconda.com/free/miniconda/miniconda-install/).
