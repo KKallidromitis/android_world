@@ -28,7 +28,7 @@ from android_env import env_interface
 from android_world import checkpointer as checkpointer_lib
 from android_world import constants
 from android_world import episode_runner
-from android_world.agents import base_agent
+from android_world.agents import base_agent,infer
 from android_world.env import adb_utils
 from android_world.env import interface
 from android_world.task_evals import task_eval
@@ -453,6 +453,9 @@ def run(
   def run_episode(task: task_eval.TaskEval) -> episode_runner.EpisodeResult:
     if demo_mode:
       _display_goal(agent.env, task)
+    llm = agent.llm
+    if isinstance(llm, infer.LoggingWrapper):
+      llm.set_task(task.name)
     return episode_runner.run_episode(
         goal=task.goal,
         agent=agent,

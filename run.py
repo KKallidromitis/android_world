@@ -172,9 +172,14 @@ def _get_agent(
     )
   # GPT.
   elif _AGENT_NAME.value == 't3a_gpt4':
-    agent = t3a.T3A(env, infer.Gpt4Wrapper('gpt-4-turbo-2024-04-09'))
+    wrapper = infer.LoggingWrapper(infer.Gpt4Wrapper('gpt-4-turbo-2024-04-09'),logdir='./logs')
+    agent = t3a.T3A(env,wrapper)
   elif _AGENT_NAME.value == 'm3a_gpt4v':
-    agent = m3a.M3A(env, infer.Gpt4Wrapper('gpt-4-turbo-2024-04-09'))
+    wrapper = infer.LoggingWrapper(infer.Gpt4Wrapper('gpt-4-turbo-2024-04-09'),logdir='./logs')
+    agent = m3a.M3A(env, wrapper)
+  elif _AGENT_NAME.value == 'm3a_gpt4o-mini': # test
+    wrapper = infer.LoggingWrapper(infer.Gpt4Wrapper('gpt-4o-mini'),logdir='./logs')
+    agent = m3a.M3A(env, wrapper)
   # SeeAct.
   elif _AGENT_NAME.value == 'seeact':
     agent = seeact.SeeAct(env)

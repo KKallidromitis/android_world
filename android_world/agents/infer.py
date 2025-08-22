@@ -339,3 +339,56 @@ class Gpt4Wrapper(LlmWrapper, MultimodalLlmWrapper):
         print('Error calling LLM, will retry soon...')
         print(e)
     return ERROR_CALLING_LLM, None, None
+
+
+import json
+from PIL import Image
+class LoggingWrapper(LlmWrapper, MultimodalLlmWrapper):
+  """A wrapper for LLM that logs the calls."""
+
+  def __init__(self, internal_wrapper: LlmWrapper | MultimodalLlmWrapper,logdir: str = './logs'):
+    self.llm = internal_wrapper
+    self.counter = 0
+    self.counter_mm = 0
+    
+    self._logdir = logdir
+      # To be set when running a task.
+    self.set_task('default_task')
+    self.task_name = None
+    self.logdir = None
+  def set_task(self, task_name: str):
+    self.task_name = task_name
+    self.logdir = os.path.join(self._logdir, task_name)
+    os.makedirs(self.logdir, exist_ok=True)
+  def predict(self, text_prompt: str) -> tuple[str, Optional[bool], Any]:
+    print(f'Calling LLM with prompt: {text_prompt}')
+    self.counter += 1
+    
+    output = self.llm.predict(text_prompt)
+    with open(os.path.join(self.logdir, f'input_textcall_{self.counter}.txt'), 'a') as f:
+      f.write(f'Input:\n {text_prompt}\n')
+      f.write(f'------------')
+      f.write(f'Output:\n {output[0]}\n')
+      f.write(f'------------')
+    return output
+
+  def predict_mm(
+      self, text_prompt: str, images: list[np.ndarray]
+  ) -> tuple[str, Optional[bool], Any]:
+    self.counter_mm += 1
+    print(f'Calling LLM with prompt: {text_prompt} and {len(images)} images')
+    output = self.llm.predict_mm(text_prompt, images)
+    all_images = []
+    for i, image in enumerate(images):
+      img_pil = Image.fromarray(image)
+      image_name = f'image_{self.counter_mm}_{i}.jpg'
+      img_pil.save(os.path.join(self.logdir, image_name))
+      all_images.append(image_name)
+    with open(os.path.join(self.logdir, f'input_mmcall_{self.counter_mm}.txt'), 'a') as f:
+      f.write(f'Input Images:\n {",".join(all_images)}\n')
+      f.write(f'------------')
+      f.write(f'Input:\n {text_prompt}\n')
+      f.write(f'------------')
+      f.write(f'Output:\n {output[0]}\n')
+      f.write(f'------------')
+    return output
